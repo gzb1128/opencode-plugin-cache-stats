@@ -1,0 +1,22 @@
+{
+  "name": "opencode-plugin-cache-stats",
+  "version": "1.0.0",
+  "description": "A TUI sidebar plugin that displays cache hit rate metrics for opencode sessions",
+  "type": "module",
+  "exports": {
+    "./tui": "./src/index.tsx"
+  },
+  "files": [
+    "src"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "@opencode-ai/plugin": "^0.1.0",
+    "@opencode-ai/sdk": "^0.1.0",
+    "solid-js": "^1.8.0",
+    "typescript": "^5.3.0"
+  },
+  "peerDependencies": {
+    "solid-js": "^1.8.0"
+  }
+}
