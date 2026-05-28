@@ -51,44 +51,25 @@ interface CacheStatsViewProps {
  * 单个 session 的缓存命中率显示组件
  */
 function CacheStatsView(props: CacheStatsViewProps) {
-  const theme = props.api.theme.current
+  const theme = () => props.api.theme.current
 
   const stats = createMemo(() => {
     const messages = props.api.state.session.messages(props.session_id)
+    const msg = messages.findLast(
+      (m): m is AssistantMessage =>
+        m.role === "assistant" && m.tokens.output > 0,
+    )
+    if (!msg) return null
 
-    // 从后往前找最后一条有效的 assistant 消息
-    const msg = messages
-      .slice()
-      .reverse()
-      .find(
-        (m): m is AssistantMessage =>
-          m.role === "assistant" &&
-          m.tokens !== undefined &&
-          m.tokens.output > 0
-      )
-
-    if (!msg) {
-      return null
-    }
-
-    const cacheRead = msg.tokens.cache?.read ?? 0
-    const inputTokens = msg.tokens.input ?? 0
+    const cacheRead = msg.tokens.cache.read
+    const inputTokens = msg.tokens.input
     const total = cacheRead + inputTokens
+    if (total === 0) return null
 
-    if (total === 0) {
-      return null
-    }
-
-    const hitRate = (cacheRead / total) * 100
-
-    return {
-      hitRate,
-      cacheRead,
-      total,
-    }
+    return { hitRate: (cacheRead / total) * 100, cacheRead, total }
   })
 
-  const color = createMemo(() => {
+  const fg = createMemo(() => {
     const s = stats()
     if (!s) return theme().textMuted
     if (s.hitRate >= 80) return theme().success
@@ -97,17 +78,19 @@ function CacheStatsView(props: CacheStatsViewProps) {
   })
 
   return (
-    <div style={{ padding: "0 1", margin: "1 0" }}>
-      <div style={{ fontWeight: "bold" }}>Cache Hit Rate</div>
-      <div style={{ color: color() }}>
+    <box>
+      <text fg={theme().text}>
+        <b>Cache Hit Rate</b>
+      </text>
+      <text fg={fg()}>
         {stats() ? `${stats()!.hitRate.toFixed(1)}%` : "--"}
-      </div>
-      <div style={{ color: theme().textMuted }}>
+      </text>
+      <text fg={theme().textMuted}>
         {stats()
           ? `${formatNumber(stats()!.cacheRead)} cached / ${formatNumber(stats()!.total)}`
           : "--"}
-      </div>
-    </div>
+      </text>
+    </box>
   )
 }
 
