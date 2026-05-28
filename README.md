@@ -4,26 +4,52 @@
 
 ## 安装
 
+### 方式一：本地文件引用
+
+1. 将 `src/index.tsx` 复制到 opencode 插件目录：
+
 ```bash
-npm install opencode-plugin-cache-stats
+cp src/index.tsx ~/.config/opencode/plugins/cache-stats.tsx
 ```
 
-## 集成到 opencode
-
-在 `tui.json` 中注册本插件：
+2. 创建或编辑 `~/.config/opencode/tui.json`（全局）或项目下 `.opencode/tui.json`：
 
 ```json
 {
-  "plugins": [
-    "opencode-plugin-cache-stats"
+  "$schema": "https://opencode.ai/tui.json",
+  "plugin": [
+    "file:///Users/<you>/.config/opencode/plugins/cache-stats.tsx"
   ]
 }
 ```
 
-### 其他安装方式
+也可以使用相对路径（相对于 `tui.json` 所在目录）：
 
-1. **本地开发调试**：将编译产物放入 `.opencode/plugin/cache-stats.js`（opencode 会自动发现）
-2. **文件引用**：在 `tui.json` 中添加 `"file://./path/to/plugin"`
+```json
+{
+  "plugin": [
+    "./plugins/cache-stats.tsx"
+  ]
+}
+```
+
+3. 重启 opencode，sidebar 中即出现 Cache Hit Rate 面板。
+
+### 方式二：npm 安装（发布后可用）
+
+```bash
+npm install opencode-plugin-cache-stats
+```
+
+在 `tui.json` 中添加：
+
+```json
+{
+  "plugin": [
+    "opencode-plugin-cache-stats"
+  ]
+}
+```
 
 ## 功能
 
@@ -37,6 +63,7 @@ Cache Hit Rate
 
 - **命中率公式**：`cache_read / (cache_read + input_tokens)`
 - **颜色编码**：
-  - ≥ 80%：绿色
-  - 50% ~ 80%：黄色
-  - < 50%：红色
+  - ≥ 80%：绿色（success）
+  - 50% ~ 80%：黄色（warning）
+  - < 50%：红色（error）
+- **空状态**：无 assistant 消息时显示 `--`
